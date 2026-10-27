@@ -45,7 +45,7 @@ instruments:
 # --- Horizonte histórico (sección 2). Fechas absolutas, no relativas. ---
 history:
   start: "2020-07-01"
-  end:   "2025-07-01"
+  end:   "2026-10-27"
 
 # --- Cohortes temporales (sección 6.4) ---
 cohorts:
