@@ -1,0 +1,35 @@
+# --- Datos: crudos y derivados NO se versionan en git (se versionan por manifest sha256, sección 10) ---
+data/raw/
+data/processed/
+data/features/
+
+# Excepción: la tabla curada de tasas SÍ se versiona (es fuente, no dato descargado)
+!data/raw/rates/
+!data/raw/rates/*.csv
+
+# --- Experimentos: resultados grandes fuera de git; config/report sí ---
+experiments/**/results.json
+experiments/**/*.parquet
+
+# --- Reportes generados on-demand ---
+reports/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+.pytest_cache/
+.duckdb
+.ipynb_checkpoints/
+
+# --- SO ---
+.DS_Store
+
+# --- Locales / ruido ---
+.DS_Store
+*.log
+.claude/
+.pytest_cache/

@@ -1,0 +1,25 @@
+[project]
+name = "quant-audusd-mvp"
+version = "0.1.0"
+description = "Plataforma de análisis cuantitativo — MVP AUD/USD (ver CLAUDE.md)"
+# Rango declarado en ADR-000. El entorno real es 3.14 (ver .python-version),
+# dentro de este rango; no se fuerza downgrade.
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.1",
+    "pyarrow>=14.0",
+    "duckdb>=0.9",
+    "scipy>=1.11",
+    "statsmodels>=0.14",
+    "ta>=0.11",               # indicadores clásicos (ADR-000: reemplaza pandas-ta)
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "dukascopy-python",       # ADR-001: fuente de precio (BID/ASK -> spread)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+backtest = ["vectorbt>=0.26"]   # ADR-002, se instala en Fase 4
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,85 @@
+# Configuración central del proyecto (ADR-000: preferir configuración sobre hardcoding).
+# Única fuente de parámetros operativos de Fase 1. Cualquier valor aquí es un default
+# documentado, no una constante sagrada (regla sección 16).
+
+project:
+  name: "quant-audusd-mvp"
+  base_timezone: "UTC"          # todo cómputo interno en UTC (sección 11)
+
+# --- Activos y timeframes del MVP (sección 2) ---
+instruments:
+  # Activo REALMENTE operado (ADR-006): futuro CME del AUD. Desde ADR-018 también
+  # intradía real (M1/M5/H1/H4), no solo D1 — con profundidad histórica limitada
+  # (ver docstring de data/sources/yahoo_futures.py: M1 ~30d, M5 ~60d, H1/H4 ~730d).
+  real_asset:
+    symbol: "6A"
+    source: "yahoo_futures"
+    role: "real"
+    timeframes: ["M1", "M5", "H1", "H4", "D1"]
+    market_calendar: "CME_FX"  # calendario CME para validar huecos (ADR-006)
+  # PROXY intradía (ADR-006): AUDUSD spot de Dukascopy. Aproxima la estructura de 6A
+  # (swings/sweeps/sesiones) porque 6A no se descarga intradía. NO es el activo real.
+  primary:
+    symbol: "AUDUSD"
+    source: "dukascopy"
+    role: "proxy"
+    timeframes: ["M5", "H1", "D1"]   # M5 añadido para confirmación IFVG (ADR-007)
+  cross_asset:
+    - symbol: "XAUUSD"          # oro — Dukascopy (ADR-005)
+      source: "dukascopy"
+      role: "context"
+      timeframes: ["H1", "D1"]
+    - symbol: "DXY"             # índice dólar — Dukascopy nativo (ADR-005, decisión confirmada)
+      source: "dukascopy"
+      role: "context"
+      timeframes: ["D1"]
+    - symbol: "6N"              # dólar neozelandés CME — Yahoo futures (ADR-016, para SMT vs 6A)
+      source: "yahoo_futures"
+      role: "context"
+      timeframes: ["M1", "M5", "H1", "H4", "D1"]   # intradía real añadido en ADR-018
+      market_calendar: "CME_FX"
+    # hierro: pospuesto, no entra al MVP (ADR-005)
+  rates_table:                  # diferencial RBA/Fed, tabla curada (ADR-005)
+    path: "data/raw/rates/rba_fed.csv"
+
+# --- Horizonte histórico (sección 2). Fechas absolutas, no relativas. ---
+history:
+  start: "2020-07-01"
+  end:   "2025-07-01"
+
+# --- Cohortes temporales (sección 6.4) ---
+cohorts:
+  mode: "calendar_year"         # partición mínima; ajustable a regímenes macro luego
+  years: [2021, 2022, 2023, 2024, 2025]
+
+# --- Sesiones (sección 11): definidas por zona horaria de plaza, DST resuelto con zoneinfo ---
+sessions:
+  Sydney:  { tz: "Australia/Sydney",  open_local: "07:00", close_local: "16:00" }
+  Tokyo:   { tz: "Asia/Tokyo",        open_local: "09:00", close_local: "18:00" }
+  London:  { tz: "Europe/London",     open_local: "08:00", close_local: "17:00" }
+  NewYork: { tz: "America/New_York",  open_local: "08:00", close_local: "17:00" }
+  # solapamiento London-NY es el foco del usuario (sección 2)
+
+# --- Ventanas de sesión para bias multi-timeframe y POI (ADR-011) ---
+# Horarios FIJOS en UTC (hora Ciudad de México, UTC-6, sin DST desde 2022 — no
+# usan zoneinfo como las sesiones de arriba porque son la referencia horaria
+# propia del usuario, no el horario local de una plaza con DST).
+confluence_windows:
+  ny_am: { start_hour_utc: 12, end_hour_utc: 15 }        # 6-9am CDMX
+  ny_pm: { start_hour_utc: 19, end_hour_utc: 22 }        # 1-4pm CDMX
+  entry_session: { start_hour_utc: 0, end_hour_utc: 4 }  # Tokio 6-10pm CDMX (igual V1-V4)
+  eq_poi_window_start_hour_utc: 22                        # equals buscados desde 4pm CDMX (=22:00 UTC día anterior)
+
+# --- Validación de calidad de datos (ADR-001, sección 13) ---
+quality:
+  error_gap_days: 7             # huecos > 7 días naturales (no fin de semana ni feriado) => error; menores => warning
+  price_outlier_zscore: 8.0     # retorno log con |z robusto| > umbral => outlier a revisar
+  weekend_gap_allowed: true     # forex cierra fin de semana; hueco viernes->domingo es esperado
+
+# --- Rutas de almacenamiento (sección 10) ---
+paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  features: "data/features"
+  experiments: "experiments"
+  reports: "reports"

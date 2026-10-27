@@ -1,0 +1,38 @@
+# Fase 1 — dependencias base (ADR-000)
+# Python 3.11+ requerido (uso de zoneinfo stdlib, tipado moderno).
+
+# --- Datos / almacenamiento ---
+pandas>=2.1
+pyarrow>=14.0          # backend Parquet
+duckdb>=0.9            # consultas columnar sobre Parquet (ADR-000)
+pyyaml>=6.0           # lectura de config/settings.yaml
+
+# --- Estadística (usado desde Fase 3, se fija ya para reproducibilidad) ---
+scipy>=1.11
+statsmodels>=0.14
+
+# --- Motor de señales: score de confluencia con regresión logística (ADR-019) ---
+# Alternativa al score aditivo simple (decision_engine/scoring.py) — se valida
+# fuera de muestra contra el aditivo, no se usa a ciegas solo porque es "más ML".
+scikit-learn>=1.4
+
+# --- Indicadores (Fase 2) — `ta`, no pandas-ta (ver ADR-000: incompat numba/py3.14) ---
+ta>=0.11
+
+# --- Backtesting (Fase 4) ---
+# vectorbt se instala en su fase para no arrastrar su árbol de deps en Fase 1.
+# vectorbt>=0.26
+
+# --- Descarga de datos ---
+requests>=2.31         # Stooq CSV (ADR-005) y utilidades HTTP
+dukascopy-python       # adaptador Dukascopy (ADR-001): BID/ASK -> spread
+yfinance                # adaptador 6A D1, activo real (ADR-006)
+
+# --- Calendarios de mercado (sección 13, validación de huecos) ---
+pandas_market_calendars   # calendario CME_FX para 6A (ADR-006)
+
+# --- Estadística adicional (Fase 3) ---
+arch                    # GARCH(1,1) walk-forward, baseline de régimen (Fase 3)
+
+# --- Testing / calidad (sección 13) ---
+pytest>=7.4

@@ -1,0 +1,5 @@
+objetivo: V12 trade de cajon del usuario (SPEC_V12.md, fijada antes de correr)
+dataset_sha256: b921d786edb83a6609bfd2d5f032707c59783c0f20cb19c657fdd78ff86cd09c
+n_total: 95
+tests_multiples: corrida unica registrada (+1). Cambiar horas/bandas/RR tras ver resultado activa 6.2
+nota: "Resultado EXPLORATORIO (ADR-007): primera prueba de una regla derivada del análisis, NO una validación definitiva. Estructura sobre proxy spot AUD/USD, no el futuro real 6A (ADR-006). Una hipótesis predefinida => sin Deflated Sharpe; ajustar parámetros tras ver esto activa el control de tests múltiples (6.2)."
