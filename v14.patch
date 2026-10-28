@@ -1,0 +1,176 @@
+diff --git a/Makefile b/Makefile
+index 38fe2c8..ac87ac5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -144,3 +144,6 @@ backtest-v13:
+ 
+ calibrar-bias:
+ 	. .venv/bin/activate && python analysis_v13/calibrar_bias.py "$(NOTION_CSV)" $(YEAR)
++
++backtest-v14:
++	. .venv/bin/activate && python -m backtest.run_v14
+diff --git a/PROGRESS.md b/PROGRESS.md
+index 48b0bea..82d1e2f 100644
+--- a/PROGRESS.md
++++ b/PROGRESS.md
+@@ -298,3 +298,10 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
+   - `confluence.csv` (1304 días): h4, ny_am, ny_pm 100% idénticos; d1 3 difs (2020-07-03, 2025-01-01, 2025-07-01); dir_ayer/dir_hoy 4 difs cada uno (bordes de datos/feriados). Ninguna de esas fechas tiene operación en trades.csv (235 ops).
+ - V13 NO se re-corrió (corrida registrada única, tests múltiples: V13 = 1). Mi calibración independiente (scripts/calibrate_bias.py, SPEC_BIAS_USER.md) se descartó por redundante con SPEC_V13/analysis_v13.
+ - Siguiente paso: hold-out 2026 → `python analysis_v13/calibrar_bias.py "<notion_all.csv>" 2026` en la máquina del usuario.
++
++## 2026-10-28 — Hold-out 2026 de bias + V14 (pre-registrada, aún NO corrida)
++- Hold-out etiquetas 2026 (n≈132-139 días): am_B 77.7%, h4_B 64.9%, d1_B 53.8% aceptados; pm_A 47.8% rechazado (<50%, SPEC_V13 §4). pm_B 52.2% no se elige (sería seleccionar con el hold-out).
++- Decisión del usuario: NY PM = información, no puerta. SPEC_V14.md: puerta = d1+h4+ny_am alineados (3 de 3); `pm_rel` por operación. Prueba limpia = entradas ≥ 2026-01-01; antes de eso solo descriptivo.
++- Puerta abierta en 19.4% de días (V13: 30.6%) sobre datos ≤2025-07 → esperado ~20-30 ops en 2026: probable n<30 (inconcluso, ADR-009). Se acepta; no se relaja la puerta para ganar muestra.
++- Tests múltiples acumulados: V13 = 1 corrida, V14 = 1 (pendiente de correr: `make backtest-v14`).
++- 4H explicado por el usuario (lateral = muchas velas sin HH/LL, ~3-5 días): candidato `h4_C` N=4 días, para versión posterior.
+diff --git a/SPEC_V14.md b/SPEC_V14.md
+new file mode 100644
+index 0000000..73984cc
+--- /dev/null
++++ b/SPEC_V14.md
+@@ -0,0 +1,22 @@
++# SPEC V14 — NY PM como información, no como puerta (fijada 2026-10-28, ANTES de correr)
++
++## Origen
++- Hold-out de etiquetas 2026 (SPEC_V13 §4): NY AM 77.7%, 4H 64.9%, D1 53.8% → aceptados. NY PM (`pm_A`) 47.8% < 50% → no es proxy válido.
++- Decisión del usuario (2026-10-28): NY PM NO es puerta de entrada; se usa como información. Se opera aunque NY PM no coincida y se analiza después, como en su journal.
++- No se mira P&L para esta decisión (motivo: acuerdo con etiquetas + criterio del usuario).
++
++## Regla V14 (única diferencia con V13)
++- **Puerta de bias:** D1-B, H4-B y NY AM S-B (`ny_am`) los tres no neutrales y de la MISMA dirección → se opera en esa dirección. Si no, no se opera. (Decisión mía, fijada aquí: 3 de 3; el usuario no especificó el umbral. No se prueban 2 de 3 ni variantes.)
++- **NY PM (`pm_A`, informativo):** se registra por operación como `pm_rel` = a favor / neutral / en contra del lado operado, y `n_aligned` = 3 (PM no coincide) ó 4 (PM coincide). No filtra ni elige nada.
++- Todo lo demás idéntico a V12/V13: sweep, IFVG ≤12 velas M5, SL = extremo del sweep (mín 0.3×ATR), TP RR 1.7 acotado 1.6–1.8 por zonas, 1 trade/día, buckets por hora de entrada (A0/A/B/C), `candle_aligned` con D1-B, costos `apply_costs`.
++- Reglas de bias ya validadas, sin cambios: D1-B, H4-B, NY AM S-B (SPEC_V13 §3).
++
++## Evaluación
++- **Primaria (limpia): operaciones con entrada ≥ 2026-01-01.** Datos que ninguna regla vio. Hipótesis única: expectancy(A) > expectancy(B+C). n<30 → inconclusa (ADR-009).
++- **Descriptiva (NO prueba):** entradas < 2026-01-01. V13 ya vio esos datos (P&L incluido); se reporta solo para contexto.
++- Descriptivo (sin elegir ganador): tabla por `pm_rel`, por bucket, por trigger, por `candle_aligned`.
++- Una sola corrida registrada. Tests múltiples: V13 = 1, V14 = 1 (acumulado en PROGRESS.md).
++- Prohibido tras ver resultado: cambiar umbral de la puerta, horas, RR, parámetros. Cambiar algo = versión nueva.
++
++## 4H (explicación del usuario, 2026-10-28) — NO entra en V14
++4H funciona como 1H: zonas de interés (liquidez) + tendencia; en tendencia alcista busca un CHoCH para tomar liquidez y seguir alcista; es LATERAL si hay muchas velas sin HH ni LL (EQL/EQH), ~3–5 días. V14 usa H4-B (ya aceptado en hold-out). Candidato futuro `h4_C` = H4-B pero 0 si no hubo ruptura de estructura en los últimos N días (N fijo=4, punto medio de 3–5, sin ajustar), a calibrar por acuerdo en 2024 y revisar en 2026 en una versión posterior, no mezclado con V14.
+diff --git a/backtest/run_v14.py b/backtest/run_v14.py
+new file mode 100644
+index 0000000..ebb4521
+--- /dev/null
++++ b/backtest/run_v14.py
+@@ -0,0 +1,70 @@
++"""V14 = V13 con NY PM como información (SPEC_V14). Una corrida registrada. Uso: python -m backtest.run_v14"""
++from __future__ import annotations
++from datetime import datetime, timezone
++from pathlib import Path
++import numpy as np, pandas as pd
++from backtest import metrics
++from backtest.run import EXPLORATORY_NOTE
++from backtest.run_v3 import validity_label
++from backtest.run_v5 import _prepare
++from backtest.run_v12 import cell, table, primary_test
++from data import ingest
++from features.vwap import add_session_vwap
++from strategy.liquidity_sweep_ifvg_v12 import generate_trades_v12
++from strategy.v14_confluence import build_v14_confluence
++
++CLEAN_FROM = pd.Timestamp("2026-01-01", tz="UTC")   # SPEC_V14: prueba limpia
++
++
++def run(config=None):
++    config = config or ingest.load_config()
++    m5, h1, _old, man, _ = _prepare(config, None)
++    m5 = add_session_vwap(m5)
++    conf = build_v14_confluence(m5, h1)
++    day = pd.Series(m5.index.normalize(), index=m5.index)
++    m5["prev_dir"] = day.map(conf["dir_ayer"]).fillna(0).astype(int).to_numpy()
++    m5["today_dir"] = day.map(conf["dir_hoy"]).fillna(0).astype(int).to_numpy()
++    half_spread = float(m5["spread"].dropna().mean()) / 2.0
++    atr_ref = float(m5["atr"].dropna().median())
++    t = generate_trades_v12(m5, h1, conf)
++    if t.empty:
++        return {"trades": t, "n_total": 0, "conf": conf, "dataset_sha256": man.sha256}
++    t = metrics.apply_costs(t, half_spread=half_spread, slippage_atr_frac=0.05, atr=atr_ref)
++    t["entry_dt"] = pd.to_datetime(t["entry_time"], utc=True)
++    pm = conf["ny_pm"].reindex(t["entry_dt"].dt.normalize()).to_numpy()
++    want = np.where(t["side"] == "long", 1, -1)
++    t["pm_rel"] = np.select([pm == want, pm == 0], ["a_favor", "neutral"], default="en_contra")
++    t["perfecto"] = (t["bucket"] == "A") & t["candle_aligned"] & (t["trigger"] == "eq_vwap")
++    return {"trades": t, "n_total": len(t), "validity": validity_label(len(t)), "conf": conf, "dataset_sha256": man.sha256}
++
++
++def report(p):
++    t = p["trades"]; c = p["conf"]
++    clean = t[t.entry_dt >= CLEAN_FROM]; dev = t[t.entry_dt < CLEAN_FROM]
++    out = [f"# V14 — {datetime.now(timezone.utc).date()}", f"> {EXPLORATORY_NOTE}", "",
++           f"**{p['n_total']} ops** (dev {len(dev)}, limpia 2026+ {len(clean)}). Días con puerta abierta: {(c.confidence=='alta').mean():.1%} de {len(c)}.", "",
++           f"## PRIMARIA (limpia, entrada >= 2026-01-01) n={len(clean)} → {validity_label(len(clean))}", primary_test(clean) if len(clean) else "sin operaciones",
++           repr(cell(clean)) if len(clean) else ""]
++    if len(clean):
++        for col in ("bucket", "pm_rel", "trigger", "candle_aligned"):
++            out += [f"### por {col}", table(clean, col).to_string(), ""]
++    out += ["", f"## DESCRIPTIVA (dev, < 2026) n={len(dev)} — V13 ya vio estos datos; no es prueba", repr(cell(dev)) if len(dev) else "-"]
++    if len(dev):
++        for col in ("bucket", "pm_rel"):
++            out += [f"### por {col}", table(dev, col).to_string(), ""]
++    out += ["## Por año", table(t, "cohort").to_string()]
++    return "\n".join(out)
++
++
++def main():
++    config = ingest.load_config(); p = run(config)
++    if not p["n_total"]:
++        print("V14: 0 operaciones"); return
++    exp = Path(config["paths"]["experiments"]) / f"{datetime.now(timezone.utc).date()}_strat_v14_pm_informativo"
++    exp.mkdir(parents=True, exist_ok=True)
++    p["trades"].drop(columns=["entry_dt"]).to_csv(exp / "trades.csv", index=False)
++    p["conf"].to_csv(exp / "confluence.csv")
++    txt = report(p); (exp / "report.md").write_text(txt, encoding="utf-8"); print(txt); print("Guardado en:", exp)
++
++if __name__ == "__main__":
++    main()
+diff --git a/strategy/v14_confluence.py b/strategy/v14_confluence.py
+new file mode 100644
+index 0000000..79afff2
+--- /dev/null
++++ b/strategy/v14_confluence.py
+@@ -0,0 +1,17 @@
++"""Puerta V14 (SPEC_V14): D1-B, H4-B y NY AM S-B los tres alineados. NY PM = información, no puerta."""
++from __future__ import annotations
++import pandas as pd
++from strategy.v13_confluence import build_v13_confluence
++
++
++def gate_v14(conf: pd.DataFrame) -> pd.DataFrame:
++    """direction=±1/'alta' solo si d1, h4 y ny_am son no neutrales e iguales; si no 0/'na'. Conserva ny_pm."""
++    out = conf.copy()
++    same = (out["d1"] != 0) & (out["d1"] == out["h4"]) & (out["d1"] == out["ny_am"])
++    out["direction"] = out["d1"].where(same, 0).astype(int)
++    out["confidence"] = same.map({True: "alta", False: "na"})
++    return out
++
++
++def build_v14_confluence(m5: pd.DataFrame, h1: pd.DataFrame) -> pd.DataFrame:
++    return gate_v14(build_v13_confluence(m5, h1))
+diff --git a/tests/strategy/test_v14_gate.py b/tests/strategy/test_v14_gate.py
+new file mode 100644
+index 0000000..d1ae6f1
+--- /dev/null
++++ b/tests/strategy/test_v14_gate.py
+@@ -0,0 +1,17 @@
++"""V14: puerta d1+h4+ny_am alineados; NY PM no es puerta."""
++import pandas as pd
++from strategy.v14_confluence import gate_v14
++
++
++def _c(rows):
++    return pd.DataFrame(rows, columns=["d1", "h4", "ny_am", "ny_pm"], index=pd.date_range("2026-01-05", periods=len(rows)))
++
++
++def test_gate_three_aligned_opens_regardless_of_pm():
++    g = gate_v14(_c([(1, 1, 1, -1), (1, 1, 1, 0), (-1, -1, -1, -1)]))
++    assert list(g.direction) == [1, 1, -1] and set(g.confidence) == {"alta"}
++
++
++def test_gate_closed_if_any_neutral_or_opposed():
++    g = gate_v14(_c([(1, 1, 0, 1), (1, -1, 1, 1), (0, 0, 0, 0)]))
++    assert list(g.direction) == [0, 0, 0] and set(g.confidence) == {"na"}

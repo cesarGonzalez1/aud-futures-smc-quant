@@ -298,3 +298,10 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
   - `confluence.csv` (1304 días): h4, ny_am, ny_pm 100% idénticos; d1 3 difs (2020-07-03, 2025-01-01, 2025-07-01); dir_ayer/dir_hoy 4 difs cada uno (bordes de datos/feriados). Ninguna de esas fechas tiene operación en trades.csv (235 ops).
 - V13 NO se re-corrió (corrida registrada única, tests múltiples: V13 = 1). Mi calibración independiente (scripts/calibrate_bias.py, SPEC_BIAS_USER.md) se descartó por redundante con SPEC_V13/analysis_v13.
 - Siguiente paso: hold-out 2026 → `python analysis_v13/calibrar_bias.py "<notion_all.csv>" 2026` en la máquina del usuario.
+
+## 2026-10-28 — Hold-out 2026 de bias + V14 (pre-registrada, aún NO corrida)
+- Hold-out etiquetas 2026 (n≈132-139 días): am_B 77.7%, h4_B 64.9%, d1_B 53.8% aceptados; pm_A 47.8% rechazado (<50%, SPEC_V13 §4). pm_B 52.2% no se elige (sería seleccionar con el hold-out).
+- Decisión del usuario: NY PM = información, no puerta. SPEC_V14.md: puerta = d1+h4+ny_am alineados (3 de 3); `pm_rel` por operación. Prueba limpia = entradas ≥ 2026-01-01; antes de eso solo descriptivo.
+- Puerta abierta en 19.4% de días (V13: 30.6%) sobre datos ≤2025-07 → esperado ~20-30 ops en 2026: probable n<30 (inconcluso, ADR-009). Se acepta; no se relaja la puerta para ganar muestra.
+- Tests múltiples acumulados: V13 = 1 corrida, V14 = 1 (pendiente de correr: `make backtest-v14`).
+- 4H explicado por el usuario (lateral = muchas velas sin HH/LL, ~3-5 días): candidato `h4_C` N=4 días, para versión posterior.

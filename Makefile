@@ -144,3 +144,6 @@ backtest-v13:
 
 calibrar-bias:
 	. .venv/bin/activate && python analysis_v13/calibrar_bias.py "$(NOTION_CSV)" $(YEAR)
+
+backtest-v14:
+	. .venv/bin/activate && python -m backtest.run_v14
