@@ -150,3 +150,10 @@ backtest-v14:
 
 backtest-v15:
 	. .venv/bin/activate && python -m backtest.run_v15
+
+# V16: calibración por reproducción del ledger (uso: make reproducir-ledger LEDGER=ruta.csv YEAR=2026) y backtest (solo si el hold-out acepta)
+reproducir-ledger:
+	. .venv/bin/activate && python analysis_v16/reproducir_ledger.py "$(LEDGER)" $(YEAR)
+
+backtest-v16:
+	. .venv/bin/activate && python -m backtest.run_v16

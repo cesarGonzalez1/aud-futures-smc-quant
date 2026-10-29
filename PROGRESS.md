@@ -332,3 +332,9 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
 - Riesgo <= $500 con 6 contratos: 251 de 390 ops; -0.046R [-0.21,+0.12]; A +0.118R (102).
 - Lectura: el motor codificado está en breakeven con costos reales; no se distingue de 0 (con n=390 el IC descarta edges > ~+0.14R/op). Brecha con el ledger (backtest manual +0.75R, cuenta real/sim n=25 menos) sin explicar: sesgo de hindsight del backtest manual y/o información que el motor no modela (sweep "real" tras sweep "leve" — simplificación declarada en SPEC_V12 §2; stops del motor > $500 en 36% de ops).
 - Tests múltiples: V13 = 1, V14 = 1, V15 = 1. No repetir V15.
+
+## 2026-10-29 — V16 preparada (SPEC_V16.md): calibración 2024 hecha, hold-out 2026 pendiente
+- Reglas nuevas del usuario (3 capturas): confirmación = IFVG o 3 velas M5 seguidas (lo primero), sin exigir EQ, SL +1 tick, TP RR 1.7 fijo.
+- Reproducción del ledger 2024 (n=41, lado forzado): encuentra entrada el mismo día 44% (V15) → 63% (variante elegida); "completo" ≈12% en todas (proxy ≠ 6A). Lookback 222 = 50.
+- Resultados en vivo del usuario 2026 (cuenta/PA/sim, n=22): R medio +0.34 (IC95 [-0.34,+1.10]); sin un +6R: +0.07R; mediana -1R; win 45%. Backtest manual 2026 (n=43): +0.75R, win 60% → probable hindsight. Consistente con el motor ~0R.
+- Pendiente: hold-out `make reproducir-ledger ... YEAR=2026`; luego, si acepta, `make backtest-v16` (una vez).
