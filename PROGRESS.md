@@ -313,3 +313,9 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
 - 31% de las ops del motor (60/192) arriesgan > $500 con 6 contratos (stop del motor > 8.3 pips): el motor no replica los stops del usuario en ese tercio.
 - Solape con ledger: 2026 → 6 de 22 señales V14 caen en día de trade del usuario (5 mismo lado); 6 de sus 70 trades 2026 están en día de señal V14. 2024: 5/34 (4 mismo lado). El motor NO reproduce lo que el usuario opera.
 - Ledger 2026 por fuente: backtest_manual n=45 +0.75R; PA_apex n=13 +0.52R; real_cuenta n=7 −0.39R; tiempo_real_sim n=5 +1.01R (n muy chicos; backtest manual sujeto a sesgo de hindsight).
+
+## 2026-10-28 — V15 pre-registrada (aún NO corrida): puerta ">=2 a favor y ninguno en contra"
+- Motivo: V14 (3 de 3) ~20 ops/año vs ~70/año reales del usuario. Ledger 2026 (n=68): 3 a favor +1.00R (28), 2+neutral +0.93R (15), 2 a favor + 1 en contra +0.16R (19). Patrón visto post-hoc; se prueba sobre el motor 2020-2026. SPEC_V15.md.
+- Entrada SIEMPRE = IFVG posterior al sweep (≤12 velas M5, abre la vela siguiente). Primaria: todas las entradas con costo real 6A a 1 tick, A > B+C.
+- Con confluence.csv de V14: la puerta abriría 711 de 1649 días (43%) → ~68 ops/año esperadas.
+- Tests múltiples: V13 = 1, V14 = 1, V15 = 1 (pendiente: `make backtest-v15`, una sola vez).

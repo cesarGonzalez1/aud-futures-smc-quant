@@ -147,3 +147,6 @@ calibrar-bias:
 
 backtest-v14:
 	. .venv/bin/activate && python -m backtest.run_v14
+
+backtest-v15:
+	. .venv/bin/activate && python -m backtest.run_v15
