@@ -319,3 +319,16 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
 - Entrada SIEMPRE = IFVG posterior al sweep (≤12 velas M5, abre la vela siguiente). Primaria: todas las entradas con costo real 6A a 1 tick, A > B+C.
 - Con confluence.csv de V14: la puerta abriría 711 de 1649 días (43%) → ~68 ops/año esperadas.
 - Tests múltiples: V13 = 1, V14 = 1, V15 = 1 (pendiente: `make backtest-v15`, una sola vez).
+
+## 2026-10-29 — V15 CORRIDA (única): puerta >=2 a favor y ninguno en contra
+- 390 ops (~60/año), puerta abierta 43.1% de 1649 días. Evidencia preliminar, no concluyente (ADR-009).
+- PRIMARIA (costo real 6A, 1 tick): neto +0.003R IC95 [-0.13,+0.14]; bruto +0.103R; costo 0.100R; win 42.1%. A +0.072R (n=180) vs B+C -0.052R (n=190); dif +0.124R IC [-0.15,+0.40] → NO se confirma A > B+C.
+- Slippage: 0 ticks +0.048R [-0.07,+0.18]; 2 ticks -0.043R [-0.18,+0.10]. Costo modelo viejo: -0.132R IC<0 (referencia, irreal para 6A).
+- 2026 (n=55): -0.058R [-0.40,+0.29]; <2026 (n=335): +0.013R. Por año: 2021 +0.14, 2022 -0.09, 2023 -0.07, 2024 -0.14, 2025 +0.21.
+- Buckets: A +0.072, A0 -0.105 (n=20), B +0.081, C -0.224 [-0.49,+0.05]. B no es peor que A.
+- gate_tipo: tres +0.035R (191) vs dos_neutral -0.028R (199): sin diferencia.
+- pm_rel (informativo): a_favor +0.316R (82) IC [+0.02,+0.61]; en_contra +0.048R (94); neutral -0.138R (214). Único IC>0 entre ~15 celdas descriptivas: NO se lee como hallazgo (comparaciones múltiples); pm_A no pasó hold-out como proxy de las etiquetas del usuario (47.8%).
+- trigger: eq_extremo +0.126R, eq_vwap -0.012R, sweep_extremo -0.197R (todos IC cruzan 0).
+- Riesgo <= $500 con 6 contratos: 251 de 390 ops; -0.046R [-0.21,+0.12]; A +0.118R (102).
+- Lectura: el motor codificado está en breakeven con costos reales; no se distingue de 0 (con n=390 el IC descarta edges > ~+0.14R/op). Brecha con el ledger (backtest manual +0.75R, cuenta real/sim n=25 menos) sin explicar: sesgo de hindsight del backtest manual y/o información que el motor no modela (sweep "real" tras sweep "leve" — simplificación declarada en SPEC_V12 §2; stops del motor > $500 en 36% de ops).
+- Tests múltiples: V13 = 1, V14 = 1, V15 = 1. No repetir V15.
