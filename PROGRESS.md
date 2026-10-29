@@ -305,3 +305,11 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
 - Puerta abierta en 19.4% de días (V13: 30.6%) sobre datos ≤2025-07 → esperado ~20-30 ops en 2026: probable n<30 (inconcluso, ADR-009). Se acepta; no se relaja la puerta para ganar muestra.
 - Tests múltiples acumulados: V13 = 1 corrida, V14 = 1 (pendiente de correr: `make backtest-v14`).
 - 4H explicado por el usuario (lateral = muchas velas sin HH/LL, ~3-5 días): candidato `h4_C` N=4 días, para versión posterior.
+
+## 2026-10-28 — V14 re-evaluada con costos reales de 6A (SPEC_COSTOS_6A.md)
+- Mismas 192 ops de V14; costo viejo 0.244R → real 0.057R (0 ticks) / 0.103R (1 tick) / 0.150R (2 ticks) por op.
+- Con 1 tick: limpia 2026 (n=22) −0.176R IC [−0.69,+0.34]; dev (n=170) +0.055R IC [−0.15,+0.26]; todo +0.028R. Con 2 ticks ≈ 0. Nada significativo.
+- Buckets (1 tick, todo): A +0.204R (n=93, IC [−0.08,+0.49]), A0 +0.037, B −0.069, C −0.266. Con riesgo ≤ $500: A +0.244R (n=56), C −0.458R IC [−0.90,−0.02].
+- 31% de las ops del motor (60/192) arriesgan > $500 con 6 contratos (stop del motor > 8.3 pips): el motor no replica los stops del usuario en ese tercio.
+- Solape con ledger: 2026 → 6 de 22 señales V14 caen en día de trade del usuario (5 mismo lado); 6 de sus 70 trades 2026 están en día de señal V14. 2024: 5/34 (4 mismo lado). El motor NO reproduce lo que el usuario opera.
+- Ledger 2026 por fuente: backtest_manual n=45 +0.75R; PA_apex n=13 +0.52R; real_cuenta n=7 −0.39R; tiempo_real_sim n=5 +1.01R (n muy chicos; backtest manual sujeto a sesgo de hindsight).
