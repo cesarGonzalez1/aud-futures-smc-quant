@@ -338,3 +338,11 @@ Hipótesis nueva predefinida (no ajuste de V9): bias ≥3/4 + desde 6:30 pm + sw
 - Reproducción del ledger 2024 (n=41, lado forzado): encuentra entrada el mismo día 44% (V15) → 63% (variante elegida); "completo" ≈12% en todas (proxy ≠ 6A). Lookback 222 = 50.
 - Resultados en vivo del usuario 2026 (cuenta/PA/sim, n=22): R medio +0.34 (IC95 [-0.34,+1.10]); sin un +6R: +0.07R; mediana -1R; win 45%. Backtest manual 2026 (n=43): +0.75R, win 60% → probable hindsight. Consistente con el motor ~0R.
 - Pendiente: hold-out `make reproducir-ledger ... YEAR=2026`; luego, si acepta, `make backtest-v16` (una vez).
+
+## 2026-11-02 — V16 corrida única (mecánica del usuario: 3 velas o IFVG)
+Hold-out 2026 del ledger (n=68 días): encuentra 75% vs base 56% (+19 pts, regla ≥10) -> V16 aceptada y corrida UNA vez.
+Resultado primario: 507 ops, exp neta -0.048R, IC95 [-0.17,+0.07] (cruza 0), bruta +0.049R, costo 0.098R. Slippage 0t: -0.003R; 2t: -0.094R.
+A > B+C NO se confirma (dif -0.035R, IC [-0.29,+0.21]). 2026+: n=67, -0.058R. Por año: sin año con IC fuera de 0.
+Cortes por confirm_type / gate / trigger / candle_aligned / pm_rel son POST-HOC, informativos, NO hallazgos (múltiples comparaciones, todos IC cruza 0).
+Conclusión: igual que V15, ~breakeven con costos reales; la mecánica del usuario codificada NO crea edge. 36% de ops con riesgo > $500 (6 contratos).
+No se ajusta ningún parámetro tras ver esto (activaría 6.2).
