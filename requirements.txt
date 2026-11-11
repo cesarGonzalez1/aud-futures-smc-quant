@@ -36,3 +36,4 @@ arch                    # GARCH(1,1) walk-forward, baseline de régimen (Fase 3)
 
 # --- Testing / calidad (sección 13) ---
 pytest>=7.4
+databento>=0.40

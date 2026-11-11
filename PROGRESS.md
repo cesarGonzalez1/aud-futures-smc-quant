@@ -346,3 +346,8 @@ A > B+C NO se confirma (dif -0.035R, IC [-0.29,+0.21]). 2026+: n=67, -0.058R. Po
 Cortes por confirm_type / gate / trigger / candle_aligned / pm_rel son POST-HOC, informativos, NO hallazgos (múltiples comparaciones, todos IC cruza 0).
 Conclusión: igual que V15, ~breakeven con costos reales; la mecánica del usuario codificada NO crea edge. 36% de ops con riesgo > $500 (6 contratos).
 No se ajusta ningún parámetro tras ver esto (activaría 6.2).
+
+## 2026-11-11 — Datos 6A real M1 (Databento) ingeridos (ADR-021)
+70 archivos mensuales 2021-01→2026-10, sha256 OK. M1=2.014.599, M5=414.168, H1=34.597 barras. Corr retornos vs proxy: M5 0.986, H1 0.996.
+Hallazgo clave: el símbolo continuo rola a las 00:00 UTC (inicio de sesión), 23 rolls de 0.5-30 pips -> se guarda roll_adj; precio ajustado sirve para estructura, no para niveles de precio absolutos.
+Siguiente (NO ejecutado): SPEC previo para contrastar V16 sobre 6A real. Es hipótesis nueva (6.2); no ajustar nada tras ver el resultado.

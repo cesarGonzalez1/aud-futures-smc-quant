@@ -476,6 +476,42 @@ para M1 profundo.
 **160/160 tests en verde** (6 nuevos: `test_tradingview_csv.py`, con CSVs
 sintéticos que imitan el formato real de exportación).
 
+### ADR-021 — 6A real intradía M1 desde Databento (descarga manual, 2021-01 → 2026-10)
+
+**Contexto:** hasta ahora el 6A real solo existía en D1 (Yahoo, ADR-006) y la estructura intradía se
+probaba sobre el proxy AUDUSD (Dukascopy). El usuario descargó de Databento (portal, plan de pago por
+uso) el 6A real en M1: dataset `GLBX.MDP3`, schema `ohlcv-1m`, símbolo continuo `6A.v.0`, 70 archivos
+mensuales (2021-01 → 2026-10) con `manifest.json` de sha256 propio. Fuente nueva autorizada por el usuario
+(sección 16); mismo patrón manual que ADR-020.
+
+**Implementado:** `data/sources/databento_dbn.py` (lee `data/manual_imports/databento/*.dbn.zst`, verifica
+sha256 contra el manifest de Databento), `data/import_databento.py` (escribe `data/raw/6A/{M1,M5,H1}/` con
+manifest propio, role=`real`), 3 tests sintéticos. `make ingest` NO cambia (comando aparte).
+
+**Verificado (no asumido):** los 70 sha256 coinciden; 2.014.599 barras M1, sin duplicados, OHLC consistente,
+sin precios ≤0; sesión 00-04 UTC con mediana 239/240 minutos por día (4 días con <120 barras de 1.508).
+`ts_event` = apertura de la barra en UTC. Frente al proxy AUDUSD (2021-01 → 2025-06, rolls excluidos):
+correlación de retornos M5 = 0.9857, H1 = 0.9962; rango intrabarra M5 = 0.9842, H1 = 0.9962; correlación
+cruzada en lag ±1 barra ≈ 0 (sin desfase de reloj). Esto refuerza ADR-018 con más historia y en M5.
+
+**Limitaciones (documentadas, no ocultas):**
+1. **Roll a las 00:00 UTC.** `.v.0` cambia de contrato ~cada 3 meses y SIEMPRE a las 00:00 UTC, justo el inicio
+   de la sesión de la estrategia. Hay 23 rolls con saltos de 0.5 a 30 pips (diferencial entre contratos, no
+   movimiento). Una barra a la vez sin ajuste contamina PDH/PDL, swings y equal highs que cruzan el roll,
+   en una escala comparable a un stop de 5-7 pips. Se guardan `instrument_id` y `roll_adj` (ajuste aditivo
+   hacia atrás); la serie ajustada es `close + roll_adj`.
+2. **El precio ajustado NO es el precio real histórico** (acumula hasta ~181 pips en 2021). Sirve para
+   estructura (swings, sweeps, FVG, rangos); NO para niveles por precio absoluto (Quarter Theory .00/.25/.50/.75,
+   números redondos): esos deben calcularse con el precio crudo del contrato vigente.
+3. El roll del 2023-06-18 cruza un fin de semana: su ajuste incluye el gap del fin de semana (1 sesión afectada).
+4. Sin bid/ask: no hay spread histórico. Los costos siguen `SPEC_COSTOS_6A.md`. Barras solo en minutos con
+   operaciones (M5/H1 se derivan por resample, sin barras de relleno).
+5. Es futuro continuo por volumen, no el contrato exacto que el usuario operó cada día.
+
+**Consecuencia:** por primera vez se puede probar la mecánica sobre el instrumento real en M5 con 5.8 años.
+Cualquier backtest sobre este dato es una hipótesis nueva con su `SPEC_Vxx.md` previo (6.2). El resultado
+de V15/V16 sobre el proxy NO se reescribe; esta corrida sería un contraste, no un reemplazo.
+
 ## 5. Arquitectura
 
 ```

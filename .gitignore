@@ -33,3 +33,7 @@ venv/
 *.log
 .claude/
 .pytest_cache/
+
+# --- Datos de Databento descargados a mano (ADR-021): se versionan por manifest, no en git ---
+data/manual_imports/databento/
+data/manual_imports/tradingview/*.csv
