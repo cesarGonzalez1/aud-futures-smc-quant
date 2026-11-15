@@ -157,3 +157,12 @@ reproducir-ledger:
 
 backtest-v16:
 	. .venv/bin/activate && python -m backtest.run_v16
+
+prep-6a-adj:
+	. .venv/bin/activate && python -m data.import_databento && python -m data.make_6a_adjusted
+
+backtest-v17:
+	. .venv/bin/activate && python -m backtest.run_v17
+
+backtest-v17-humo:
+	. .venv/bin/activate && python -m backtest.run_v17 --smoke

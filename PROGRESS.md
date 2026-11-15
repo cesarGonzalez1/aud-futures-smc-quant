@@ -351,3 +351,6 @@ No se ajusta ningún parámetro tras ver esto (activaría 6.2).
 70 archivos mensuales 2021-01→2026-10, sha256 OK. M1=2.014.599, M5=414.168, H1=34.597 barras. Corr retornos vs proxy: M5 0.986, H1 0.996.
 Hallazgo clave: el símbolo continuo rola a las 00:00 UTC (inicio de sesión), 23 rolls de 0.5-30 pips -> se guarda roll_adj; precio ajustado sirve para estructura, no para niveles de precio absolutos.
 Siguiente (NO ejecutado): SPEC previo para contrastar V16 sobre 6A real. Es hipótesis nueva (6.2); no ajustar nada tras ver el resultado.
+
+## 2026-11-15 — V17 preparada (NO corrida): contraste de V16 sobre 6A real
+SPEC_V17.md fijada antes de correr. Mismo motor y parámetros que V16; solo cambia el dato (6A_ADJ, ADR-021). Runner `backtest/run_v17.py`, `data/make_6a_adjusted.py`, targets `prep-6a-adj`, `backtest-v17-humo`, `backtest-v17`. Humo local no ejecutable en el sandbox (falla build de `ta`): se corre en la máquina del usuario. Tests acumulados si se corre: V13=1, V14=1, V15=1, V16=1, V17=1.

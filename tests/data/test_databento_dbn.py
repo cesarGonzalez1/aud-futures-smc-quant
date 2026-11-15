@@ -39,3 +39,14 @@ def test_resample_usa_apertura_como_etiqueta_y_agrega_ohlc():
     assert list(r.index) == [pd.Timestamp("2024-01-02 00:00", tz="UTC"), pd.Timestamp("2024-01-02 00:05", tz="UTC")]
     assert r["open"].iloc[0] == 1.0 and r["close"].iloc[0] == 5.5 and r["high"].iloc[0] == 6.0
     assert r["low"].iloc[0] == 0.5 and r["volume"].iloc[0] == 5.0
+
+
+def test_adjust_prices_suma_roll_adj_a_ohlc_y_agrega_d1_utc():
+    from data.make_6a_adjusted import adjust_prices, to_daily_utc
+    idx = pd.date_range("2024-01-02 22:00", periods=4, freq="1h", tz="UTC", name="timestamp")
+    df = pd.DataFrame({"open": 0.65, "high": 0.66, "low": 0.64, "close": 0.655, "volume": 1.0,
+                       "instrument_id": 1, "roll_adj": [0.001, 0.001, 0.0, 0.0]}, index=idx)
+    a = adjust_prices(df)
+    assert np.isclose(a["high"].iloc[0], 0.661) and np.isclose(a["high"].iloc[3], 0.66)
+    d = to_daily_utc(a)
+    assert list(d.index) == [pd.Timestamp("2024-01-02", tz="UTC"), pd.Timestamp("2024-01-03", tz="UTC")]
