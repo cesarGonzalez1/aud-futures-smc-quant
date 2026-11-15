@@ -166,3 +166,6 @@ backtest-v17:
 
 backtest-v17-humo:
 	. .venv/bin/activate && python -m backtest.run_v17 --smoke
+
+v17-sin-rolls:
+	. .venv/bin/activate && python analysis_v16/v17_sin_rolls.py

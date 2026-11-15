@@ -354,3 +354,9 @@ Siguiente (NO ejecutado): SPEC previo para contrastar V16 sobre 6A real. Es hip�
 
 ## 2026-11-15 — V17 preparada (NO corrida): contraste de V16 sobre 6A real
 SPEC_V17.md fijada antes de correr. Mismo motor y parámetros que V16; solo cambia el dato (6A_ADJ, ADR-021). Runner `backtest/run_v17.py`, `data/make_6a_adjusted.py`, targets `prep-6a-adj`, `backtest-v17-humo`, `backtest-v17`. Humo local no ejecutable en el sandbox (falla build de `ta`): se corre en la máquina del usuario. Tests acumulados si se corre: V13=1, V14=1, V15=1, V16=1, V17=1.
+
+## 2026-11-15 — V17 corrida única (6A real ajustado, mecánica V16 intacta)
+458 ops (preliminar). Neta a 1 tick: -0.116R, IC95 [-0.24,+0.01] (cruza 0). Bruta -0.016R, costo 0.100R. Slippage 0t: -0.069R [-0.19,+0.05]; 2t: -0.163R [-0.29,-0.04].
+A > B+C no se confirma (dif -0.024R, IC [-0.28,+0.23]). 2026+: n=60, -0.131R. Por año: ningún IC excluye 0. Riesgo <=$500: n=283, -0.163R [-0.31,-0.00].
+Regla de lectura pre-fijada -> "sin edge detectable sobre 6A real": el proxy NO explicaba la diferencia con el backtest manual. Cortes (gate_tipo, trigger, pm_rel) = post-hoc, no hallazgos.
+Corrección: la sensibilidad "sin rolls" de SPEC_V17 no estaba implementada en run_v17; se hace post-hoc leyendo trades.csv (analysis_v16/v17_sin_rolls.py), sin re-correr. Tests acumulados: V13..V17 = 5.
