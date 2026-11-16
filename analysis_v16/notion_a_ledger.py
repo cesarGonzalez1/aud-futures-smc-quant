@@ -16,8 +16,12 @@ N["fecha"] = N["fecha_testing"].fillna(N["fecha_date"])
 N["lado"] = N["Dirección"].astype(str).str.strip().str.capitalize()
 for a, b in (("entry", "Entry price"), ("sl", "SL"), ("tp", "TP")):
     N[a] = pd.to_numeric(N[b], errors="coerce")
+# Salida manual: si no cerró en TP/SL, lo escribe en 'Contexto sesion' como 'SALIDA: 0.64900'
+ctx = N["Contexto sesion"].astype(str) if "Contexto sesion" in N.columns else pd.Series("", index=N.index)
+N["salida"] = pd.to_numeric(ctx.str.extract(r"SALIDA:\s*([0-9]+\.[0-9]+)", flags=2)[0], errors="coerce")
 N = N[N["lado"].isin(["Long", "Short"]) & N[["entry", "sl", "tp"]].notna().all(axis=1)]
 print("con lado y precios completos:", len(N))
+print("con SALIDA manual:", int(N["salida"].notna().sum()))
 print("por año de 'fecha' y tipo:"); print(N.groupby([N.fecha.dt.year, "es_backtest"]).size())
-N[["fecha", "lado", "entry", "sl", "tp", "es_backtest"]].sort_values("fecha").to_csv(out, index=False)
+N[["fecha", "lado", "entry", "sl", "tp", "salida", "es_backtest"]].sort_values("fecha").to_csv(out, index=False)
 print("escrito:", out)
