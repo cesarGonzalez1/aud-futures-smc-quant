@@ -42,10 +42,12 @@ def verify_against_manifest(import_dir: str) -> list[str]:
 
     Returns: lista de problemas (vacía = todo coincide o no hay manifest).
     """
-    mpath = os.path.join(import_dir, "manifest.json")
-    if not os.path.exists(mpath):
+    mpaths = sorted(glob.glob(os.path.join(import_dir, "manifest*.json")))  # un manifest por descarga
+    if not mpaths:
         return []
-    expected = {f["filename"]: f["hash"].split(":")[-1] for f in json.load(open(mpath))["files"]}
+    expected: dict[str, str] = {}
+    for mp in mpaths:
+        expected.update({f["filename"]: f["hash"].split(":")[-1] for f in json.load(open(mp))["files"]})
     problems = []
     for p in sorted(glob.glob(os.path.join(import_dir, "*.dbn.zst"))):
         name = os.path.basename(p)
