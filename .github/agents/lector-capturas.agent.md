@@ -18,6 +18,12 @@ NO saques precios ni cuentes velas por pixeles. Solo reporta un número si apare
 Date (día en CDMX), Hora de entrada (CDMX), Dirección (Long/Short), Entry price, SL, TP, RR, Confirmación (IFVG / 3 velas / ?), Sweep (cercano 3 h / de todo el día / ?), BIAS HTF D, BIAS HTF 4H, Vela D pastday, Confluencias vistas, hubo setup (sí/no), opero (sí/no), Comentario.
 Para cada campo indica su origen: `leído` (texto en la imagen), `visto` (rasgo claro y sin números) o `?` (no se pudo).
 
+## Formato máquina (OBLIGATORIO al final)
+Termina SIEMPRE con un bloque ```csv de dos líneas, con este encabezado exacto y `?` en lo que no pudiste leer:
+name,direccion,entry,sl,tp
+F001,Short,0.65000,0.65100,0.64830
+(`name` = el nombre de la fila/captura que te den; precios con punto decimal y 5 decimales.)
+
 ## Validaciones antes de entregar
 - Con la dirección Long, SL < entry < TP. Con Short, TP < entry < SL. Si no cuadra, NO entregues: marca error de lectura.
 - RR calculado = |TP - entry| / |entry - SL|. Compáralo con el RR escrito; si difieren más de 0.1, avisa.
